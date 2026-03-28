@@ -1,73 +1,47 @@
-# React + TypeScript + Vite
+# Unified Academic Calendar
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+This is a zero-backend, unified academic dashboard integrated directly with the Canvas LMS API. It aggregates your assignments, exams, and quizzes into a clean, easy-to-read interface entirely client-side.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- **Timeline View**: Visualizes your upcoming assignments sorted chronologically and grouped by "This Week", "Next Week", and "Later". Badges indicate the task type (Exam, Quiz, Homework).
+- **Workload Analysis**: A visual bar chart breaks down your assignment densities per day, and the app dynamically flags heavy workload weeks (e.g., weeks with 3+ assignments or 1+ exams).
+- **100% Client-Side**: Your data never leaves your browser. This app leverages personal Canvas access tokens to communicate directly with the Canvas API. No backend servers involved!
+- **Smart Reminders**: Opt-in to browser push notifications to get reminded 24 hours and 1 hour before assignments are due.
+- **Customization**: Color-code your courses so you can organize your study sessions at a glance.
 
-## React Compiler
+## Running Locally
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+This project is built using React + TypeScript and Vite.
 
-## Expanding the ESLint configuration
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/Aarush49/Unified-Academic-Calendar.git
+   cd "Unified Academic Calender"
+   ```
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+3. Start the Vite development server:
+   ```bash
+   npm run dev
+   ```
+4. Open the provided `localhost` URL in your browser (usually `http://localhost:5173`).
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## Linking your Canvas Account
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+On first launch, you will be redirected to the Setup screen to enter your Canvas instance URL and a Personal Access Token:
+- **Canvas URL**: Your school's specific Canvas domain (e.g., `utdallas.instructure.com`).
+- **Access Token**: Generate this in your Canvas account by navigating to **Account** -> **Settings** -> Scroll down to **Approved Integrations** -> **+ New Access Token**.
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+*(Credentials are stored locally in your browser's `localStorage` and only used to request data directly from Canvas).*
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+## Technology Stack
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+- [React](https://reactjs.org/)
+- [Vite](https://vitejs.dev/)
+- [Recharts](https://recharts.org/) (Workload bar charts)
+- [date-fns](https://date-fns.org/) (Date scheduling)
+- [Lucide React](https://lucide.dev/) (Iconography)
+- Pure CSS styling mapping a flat, minimalist design system.
