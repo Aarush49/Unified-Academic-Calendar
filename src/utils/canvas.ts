@@ -1,7 +1,7 @@
 import { getStorageItem, STORAGE_KEYS } from './storage';
 
 export interface CanvasCourse {
-  id: number;
+  id: number | string;
   name: string;
   course_code: string;
   // Canvas returns an enrollment object that dictates if it's active usually or we can rely on workflow_state
@@ -84,11 +84,11 @@ class CanvasClient {
     return courses.filter(c => c.name && c.workflow_state !== 'unpublished');
   }
 
-  async getAssignments(courseId: number): Promise<CanvasAssignment[]> {
+  async getAssignments(courseId: number | string): Promise<CanvasAssignment[]> {
     return this.fetchAPI<CanvasAssignment[]>(`/courses/${courseId}/assignments?per_page=100`);
   }
 
-  async getQuizzes(courseId: number): Promise<CanvasQuiz[]> {
+  async getQuizzes(courseId: number | string): Promise<CanvasQuiz[]> {
     return this.fetchAPI<CanvasQuiz[]>(`/courses/${courseId}/quizzes?per_page=100`);
   }
 
@@ -96,7 +96,7 @@ class CanvasClient {
     return this.fetchAPI<CanvasEvent[]>('/users/self/upcoming_events?per_page=100');
   }
 
-  async getSubmissionStatus(courseId: number, assignmentId: number): Promise<{workflow_state: string; submitted_at: string|null}> {
+  async getSubmissionStatus(courseId: number | string, assignmentId: number | string): Promise<{workflow_state: string; submitted_at: string|null}> {
     return this.fetchAPI(`/courses/${courseId}/assignments/${assignmentId}/submissions/self`);
   }
 }

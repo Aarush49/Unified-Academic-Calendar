@@ -1,4 +1,4 @@
-# Unified Academic Calendar
+# Semstr
 
 This is a zero-backend, unified academic dashboard integrated directly with the Canvas LMS API. It aggregates your assignments, exams, and quizzes into a clean, easy-to-read interface entirely client-side.
 

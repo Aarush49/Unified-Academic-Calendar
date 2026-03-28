@@ -40,7 +40,7 @@ export function Sidebar({ courses = [] }: { courses?: CanvasCourse[] }) {
       padding: '24px 16px'
     }}>
       <div style={{ marginBottom: '32px', padding: '0 8px' }}>
-        <h2 style={{ margin: 0, fontSize: '20px', fontWeight: 600 }}>CourseSync</h2>
+        <h2 style={{ margin: 0, fontSize: '20px', fontWeight: 600 }}>Semstr</h2>
       </div>
 
       <nav style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '8px' }}>

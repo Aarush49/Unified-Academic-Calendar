@@ -4,11 +4,11 @@ import { useCanvasContext } from '../hooks/CanvasContext';
 
 export function SettingsView() {
   const { courses } = useCanvasContext();
-  const [url, setUrl] = useState(() => getStorageItem(STORAGE_KEYS.CANVAS_URL));
-  const [token, setToken] = useState(() => getStorageItem(STORAGE_KEYS.CANVAS_TOKEN));
   const [colors, setColors] = useState<Record<string, string>>(() => getObjectStorage(STORAGE_KEYS.COURSE_COLORS, {}));
   const [reminders, setReminders] = useState(() => getStorageItem(STORAGE_KEYS.REMINDERS_ENABLED) === 'true');
   const [savedMsg, setSavedMsg] = useState('');
+  
+  const lmsType = getStorageItem(STORAGE_KEYS.LMS_TYPE, 'canvas');
 
   const handleToggleReminders = async () => {
     const nextState = !reminders;
@@ -28,20 +28,24 @@ export function SettingsView() {
     }
   };
 
-  const handleSaveToken = (e: React.FormEvent) => {
-    e.preventDefault();
-    setStorageItem(STORAGE_KEYS.CANVAS_URL, url);
-    setStorageItem(STORAGE_KEYS.CANVAS_TOKEN, token);
-    showSaveMessage('API credentials updated. Reloading...');
-    setTimeout(() => window.location.reload(), 1500);
+  const handleSwitchLMS = () => {
+    // clear all auth keys to force setup view
+    setStorageItem(STORAGE_KEYS.CANVAS_URL, '');
+    setStorageItem(STORAGE_KEYS.CANVAS_TOKEN, '');
+    setStorageItem(STORAGE_KEYS.BB_URL, '');
+    setStorageItem(STORAGE_KEYS.BB_KEY, '');
+    setStorageItem(STORAGE_KEYS.BB_SECRET, '');
+    setStorageItem(STORAGE_KEYS.BB_TOKEN, '');
+    setStorageItem(STORAGE_KEYS.LMS_TYPE, '');
+    window.location.href = '/setup';
   };
 
-  const handleColorChange = (courseId: number, color: string) => {
+  const handleColorChange = (courseId: number | string, color: string) => {
     const newColors = { ...colors, [courseId]: color };
     setColors(newColors);
     setObjectStorage(STORAGE_KEYS.COURSE_COLORS, newColors);
     showSaveMessage('Course colors saved. Reloading...');
-    setTimeout(() => window.location.reload(), 1000);
+    setTimeout(() => window.location.reload(), 500);
   };
 
   const showSaveMessage = (msg: string) => {
@@ -63,28 +67,18 @@ export function SettingsView() {
       )}
 
       <section className="surface" style={{ padding: '24px', marginBottom: '24px' }}>
-        <h2 style={{ fontSize: '18px', margin: '0 0 16px' }}>Canvas API Integration</h2>
-        <form onSubmit={handleSaveToken} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+        <h2 style={{ fontSize: '18px', margin: '0 0 16px', borderBottom: '1px solid var(--border-color)', paddingBottom: '8px' }}>Connection</h2>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 0' }}>
           <div>
-            <label style={{ display: 'block', fontSize: '14px', fontWeight: 500, marginBottom: '6px' }}>Instance URL</label>
-            <input 
-              type="text" 
-              value={url} 
-              onChange={e => setUrl(e.target.value)} 
-            />
+            <p style={{ margin: 0, fontWeight: 500 }}>Active LMS</p>
+            <p style={{ margin: '4px 0 0', fontSize: '14px', color: 'var(--text-muted)' }}>
+              Connected to <strong>{lmsType === 'canvas' ? 'Canvas' : 'Blackboard'}</strong>
+            </p>
           </div>
-          <div>
-            <label style={{ display: 'block', fontSize: '14px', fontWeight: 500, marginBottom: '6px' }}>Personal Access Token</label>
-            <input 
-              type="password" 
-              value={token} 
-              onChange={e => setToken(e.target.value)} 
-            />
-          </div>
-          <div>
-            <button type="submit" className="primary">Update Credentials</button>
-          </div>
-        </form>
+          <button type="button" onClick={handleSwitchLMS} style={{ padding: '6px 12px', background: 'transparent', border: '1px solid var(--border-color)', borderRadius: '4px', cursor: 'pointer' }}>
+            Switch LMS
+          </button>
+        </div>
       </section>
 
       <section className="surface" style={{ padding: '24px', marginBottom: '24px' }}>

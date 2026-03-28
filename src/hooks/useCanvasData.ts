@@ -1,17 +1,28 @@
 import { useState, useEffect } from 'react';
 import { canvasClient } from '../utils/canvas';
+import { blackboardClient } from '../utils/blackboard';
 import type { CanvasCourse } from '../utils/canvas';
-import { getStorageItem } from '../utils/storage';
+import { getStorageItem, STORAGE_KEYS } from '../utils/storage';
+
+function detectType(name: string): UnifiedTask['type'] {
+  const n = name.toLowerCase();
+  if (n.includes('exam') || n.includes('midterm') || n.includes('final')) return 'Exam';
+  if (n.includes('quiz')) return 'Quiz';
+  if (n.includes('project') || n.includes('milestone') || n.includes('sprint')) return 'Project';
+  if (n.includes('reading') || n.includes('chapter')) return 'Reading';
+  return 'Assignment';
+}
 
 export interface UnifiedTask {
   id: string; // prefixed to ensure uniqueness across types
   originalId: string | number;
   title: string;
-  courseId: number;
+  courseId: string | number;
   courseName: string;
   dueDate: Date | null;
   type: 'Assignment' | 'Quiz' | 'Exam' | 'Project' | 'Reading' | 'Event' | 'Homework';
   isCompleted: boolean;
+  source: 'canvas' | 'blackboard';
   htmlUrl: string;
 }
 
@@ -61,6 +72,7 @@ export function useCanvasData() {
               dueDate: new Date(`${dueStr}, ${currentYear} 23:59:00`),
               type: a.type,
               isCompleted: a.done,
+              source: 'canvas',
               htmlUrl: '#'
             } as UnifiedTask;
         });
@@ -75,6 +87,71 @@ export function useCanvasData() {
           setCourses(demoCourses);
           setTasks(parsedTasks);
           setLoading(false);
+        }
+        return;
+      }
+
+      const lmsType = getStorageItem(STORAGE_KEYS.LMS_TYPE, 'canvas');
+
+      if (lmsType === 'blackboard') {
+        if (!blackboardClient.isConfigured) {
+          setLoading(false);
+          return;
+        }
+        
+        try {
+          setLoading(true);
+          const bbCourses = await blackboardClient.getEnrolledCourses();
+          if (!isMounted) return;
+          
+          const mappedCourses: CanvasCourse[] = bbCourses.map(c => ({
+            id: c.id,
+            name: c.name,
+            course_code: c.courseId,
+            workflow_state: 'active'
+          }));
+          setCourses(mappedCourses);
+
+          const allTasks: UnifiedTask[] = [];
+
+          await Promise.all(bbCourses.map(async (course) => {
+            try {
+              const columns = await blackboardClient.getGradebookColumns(course.id);
+              const tasksWithDue = columns.filter(col => col.grading && col.grading.due);
+              
+              await Promise.all(tasksWithDue.map(async (col) => {
+                const done = await blackboardClient.getAttemptStatus(course.id, col.id);
+                allTasks.push({
+                  id: `bb_${col.id}`,
+                  originalId: col.id,
+                  title: col.name,
+                  courseId: course.id,
+                  courseName: course.name, // course is string here, courseId type is number normally but typescript coercion for map
+                  dueDate: new Date(col.grading!.due!),
+                  type: detectType(col.name),
+                  isCompleted: done,
+                  source: 'blackboard',
+                  htmlUrl: '#'
+                });
+              }));
+            } catch (e) {
+              console.error(`Failed to fetch blackboard grades for course ${course.id}`, e);
+            }
+          }));
+
+          if (!isMounted) return;
+          
+          allTasks.sort((a, b) => {
+            if (!a.dueDate) return 1;
+            if (!b.dueDate) return -1;
+            return a.dueDate.getTime() - b.dueDate.getTime();
+          });
+
+          setTasks(allTasks);
+        } catch (err: unknown) {
+          if (isMounted) setError(err instanceof Error ? err.message : 'Failed to fetch Blackboard data');
+        } finally {
+          if (isMounted) setLoading(false);
         }
         return;
       }
@@ -101,14 +178,7 @@ export function useCanvasData() {
             ]);
 
             assignments.forEach(a => {
-              // Guess type based on name
-              let type: UnifiedTask['type'] = 'Assignment';
-              const nameLower = a.name.toLowerCase();
-              if (nameLower.includes('exam') || nameLower.includes('midterm') || nameLower.includes('final')) type = 'Exam';
-              else if (nameLower.includes('quiz')) type = 'Quiz';
-              else if (nameLower.includes('project')) type = 'Project';
-              else if (nameLower.includes('reading')) type = 'Reading';
-              else if (nameLower.includes('hw') || nameLower.includes('homework')) type = 'Homework';
+              let type = detectType(a.name);
 
               allTasks.push({
                 id: `assign_${a.id}`,
@@ -117,8 +187,9 @@ export function useCanvasData() {
                 courseId: course.id,
                 courseName: course.name,
                 dueDate: a.due_at ? new Date(a.due_at) : null,
-                type: type === 'Homework' ? 'Assignment' : type,
-                isCompleted: a.has_submitted_submissions || false, // Canvas basic flag, or we could fetch submission status individually (but that's N+1 queries, so we rely on this flag or similar)
+                type: type,
+                isCompleted: a.has_submitted_submissions || false,
+                source: 'canvas',
                 htmlUrl: a.html_url
               });
             });
@@ -132,7 +203,8 @@ export function useCanvasData() {
                 courseName: course.name,
                 dueDate: q.due_at ? new Date(q.due_at) : null,
                 type: 'Quiz',
-                isCompleted: false, // Defaulting, quizzes rarely expose 'has_submitted_submissions' broadly without full payload
+                isCompleted: false, 
+                source: 'canvas',
                 htmlUrl: q.html_url
               });
             });

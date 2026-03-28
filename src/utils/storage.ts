@@ -2,7 +2,13 @@ export const STORAGE_KEYS = {
   CANVAS_TOKEN: 'cs_canvas_token',
   CANVAS_URL: 'cs_canvas_url',
   COURSE_COLORS: 'cs_course_colors',
-  REMINDERS_ENABLED: 'cs_reminders_enabled'
+  REMINDERS_ENABLED: 'cs_reminders_enabled',
+  LMS_TYPE: 'cs_lms_type',
+  BB_URL: 'cs_bb_url',
+  BB_KEY: 'cs_bb_key',
+  BB_SECRET: 'cs_bb_secret',
+  BB_TOKEN: 'cs_bb_token',
+  BB_TOKEN_EXPIRY: 'cs_bb_token_expiry'
 };
 
 export function getStorageItem(key: string, defaultValue: string = ''): string {
