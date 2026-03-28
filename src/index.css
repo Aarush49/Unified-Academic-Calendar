@@ -1,0 +1,91 @@
+:root {
+  --bg-color: #f8f9fa;
+  --surface-color: #ffffff;
+  --text-main: #111827;
+  --text-muted: #6b7280;
+  --border-color: #e5e7eb;
+  
+  --color-exam: #ef4444;    
+  --color-homework: #3b82f6; 
+  --color-quiz: #f59e0b;     
+  --color-project: #10b981;  
+  --color-reading: #8b5cf6;  
+}
+
+body {
+  margin: 0;
+  font-family: 'Inter', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  background-color: var(--bg-color);
+  color: var(--text-main);
+  -webkit-font-smoothing: antialiased;
+}
+
+* {
+  box-sizing: border-box;
+  box-shadow: none !important; /* Strict flat UI */
+}
+
+/* Utility classes for Flat UI */
+.surface {
+  background-color: var(--surface-color);
+  border: 1px solid var(--border-color);
+  border-radius: 4px; /* Minimal rounding */
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  background: var(--surface-color);
+  border: 1px solid var(--border-color);
+  padding: 8px 16px;
+  border-radius: 4px;
+  color: var(--text-main);
+  font-weight: 500;
+  transition: background-color 0.2s ease;
+}
+
+button:hover {
+  background-color: #f3f4f6;
+}
+
+button.primary {
+  background-color: var(--text-main);
+  color: white;
+  border-color: var(--text-main);
+}
+button.primary:hover {
+  background-color: #374151;
+}
+
+input, select {
+  border: 1px solid var(--border-color);
+  padding: 10px 12px;
+  border-radius: 4px;
+  background: var(--surface-color);
+  font-family: inherit;
+  font-size: 14px;
+  color: var(--text-main);
+  outline: none;
+  transition: border-color 0.2s ease;
+  width: 100%;
+}
+
+input:focus, select:focus {
+  border-color: var(--text-main);
+}
+
+/* Setup custom scrollbar for clean look */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
+}
