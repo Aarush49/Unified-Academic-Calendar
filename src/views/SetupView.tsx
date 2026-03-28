@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { setStorageItem, STORAGE_KEYS } from '../utils/storage';
+import { setStorageItem, STORAGE_KEYS, setObjectStorage } from '../utils/storage';
 import { canvasClient } from '../utils/canvas';
 
 export function SetupView() {
@@ -43,6 +43,21 @@ export function SetupView() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleDemo = () => {
+    setStorageItem('cs_demo', 'true');
+    setStorageItem(STORAGE_KEYS.CANVAS_URL, 'demo.instructure.com');
+    setStorageItem(STORAGE_KEYS.CANVAS_TOKEN, 'demo-token');
+    
+    setObjectStorage(STORAGE_KEYS.COURSE_COLORS, {
+      3345: '#185FA5',
+      2418: '#854F0B',
+      3354: '#0F6E56',
+      2326: '#993556'
+    });
+    
+    window.location.href = '/';
   };
 
   return (
@@ -88,6 +103,21 @@ export function SetupView() {
 
           <button type="submit" className="primary" disabled={loading} style={{ marginTop: '16px' }}>
             {loading ? 'Connecting...' : 'Connect Canvas'}
+          </button>
+          
+          <button 
+            type="button" 
+            onClick={handleDemo} 
+            disabled={loading} 
+            style={{ 
+              marginTop: '8px', 
+              background: 'transparent', 
+              border: '1px solid var(--border-color)', 
+              color: 'var(--text-main)',
+              transition: 'background-color 0.2s ease'
+            }}
+          >
+            Try Demo
           </button>
         </form>
       </div>
